@@ -1,0 +1,22 @@
+# Voice-to-Text Smart Note Agent 依賴套件
+
+# 核心依賴
+pydub>=0.25.1
+google-generativeai>=0.3.0
+langgraph>=0.0.40
+
+# 音頻處理
+pydub>=0.25.1
+
+# 多進程處理
+multiprocessing-logging>=0.3.4
+
+# 類型提示
+typing-extensions>=4.0.0
+
+# 可選：開發和測試依賴
+# pytest>=7.0.0
+# pytest-cov>=4.0.0
+# black>=23.0.0
+# flake8>=6.0.0
+

@@ -1,0 +1,111 @@
+﻿Voice-to-Text Smart Note Agent
+________________
+
+
+1. Problem Definition 問題定義
+* 在會議、課堂、或訪談等場合，大量資訊以語音形式傳遞，人工整理耗時且容易遺漏。
+
+* 即便使用現有語音轉文字服務，使用者仍需自行整理重點與摘要。
+
+* 根據 IBM Speech Analytics Report (2023)，知識工作者平均每日花費約 1.5 小時 在會議紀錄與整理上。
+
+* 問題定義如下：
+如何設計一個能夠自動將語音轉換為文字，並自動產生重點摘要或筆記的智慧代理系統，以節省時間並提升資訊整理效率。
+
+2. Expected Outcome 預期成果
+成功的系統應達成以下目標：
+   * 高準確語音轉文字：可即時上傳語音，文字轉錄準確率 ≥90%。
+
+   * 自動生成摘要與筆記：AI 能產出結構化會議筆記，例如重點、待辦事項、決策紀錄。
+
+   * 時間效率提升：可節省約 70% 的手動紀錄時間。
+
+   * 跨平台整合：支援 LINE Bot、Discord Bot、或 Web Dashboard。
+
+範例輸入/輸出：
+      * 輸入語音：「今天會議討論了 AI 專案時程，預計 11 月底完成模型訓練。」
+
+      * 輸出筆記：
+
+         * 專案：AI 模型開發
+
+         * 任務：模型訓練
+
+         * 截止時間：11 月底
+
+
+
+________________
+3. Solution Proposal (Chat-Based Approach)
+Workflow
+            1. 使用 YouTube MP3 Downloader 將 55 分鐘課程影片轉為 mp3：
+ 【機器學習2021】卷積神經網路 (CNN)
+
+            2. 使用 OpenAI Whisper（於 Google Colab 執行，因筆電無 GPU）將音檔轉成文字。
+Notebook: Untitled2.ipynb
+
+            3. 由於文字檔長達約 19,112 字，LLM 無法一次處理，因此將文字切割為 30 份再逐段輸入。
+
+            4. 使用 ChatGPT 將原始文字中多餘語助詞與敘事刪除：
+ 文字過濾範例
+    
+            5. 將過濾後的文字交給整理 LLM，生成 Markdown 筆記：
+ 重點整理範例
+
+            6. 最終筆記成果：
+ HackMD 整理結果
+Advantages
+               * 簡單、可快速實驗。
+
+               * Chat 模型具高語言理解能力，可彈性處理不同主題。
+
+Limitations
+                  * 無法自動處理語音輸入（需人工轉錄）。
+
+                  * 缺乏完整自動化流程（需手動上傳與整理）。
+
+                  * 無上下文記憶（無法儲存或延續歷史會話）。
+
+4. Solution Proposal (Agentic Approach)
+Main Modules / Steps
+                     1. Speech-to-Text Module
+
+                        * 將語音檔轉為文字。
+
+                        * 使用工具：OpenAI Whisper API 或 WhisperX。
+
+
+                           2. Summarization & Note Generation Module
+
+                              * 使用 LLM（如 Gemini 1.5 或 GPT-4）自動生成摘要、筆記與待辦。
+
+                                 3. Context Classifier
+
+                                    * 判斷語音內容類型（例如：會議 / 教學 / 訪談），以選擇不同摘要風格。
+
+                                    * 使用工具：LangGraph 節點控制流程。
+
+                                       4. Data Storage / Retrieval
+
+                                          * 將摘要結果儲存在資料庫或雲端。
+
+                                          * 選項：SQLite、MongoDB、Notion API。
+
+                                             5. Notification / Output Module
+
+                                                * 自動傳送結果至指定平台。
+
+                                                * 支援：Discord Webhook、LINE Notify、Gmail API。
+
+Example Agent Workflow
+                                                   1. 使用者上傳音檔。
+
+                                                   2. Whisper 模組自動轉文字。
+
+                                                   3. LangGraph 控制流程：
+
+                                                      * Summarizer 節點 → 呼叫 Gemini 生成摘要
+
+                                                      * Note Generator 節點 → 轉換成會議筆記格式
+
+                                                         4. Output 模組 → 將筆記自動發送至 Discord 或 Email。

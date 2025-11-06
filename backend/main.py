@@ -49,12 +49,7 @@ fastapi_app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# --- 安全性修正：從環境變數讀取 API 金鑰 ---
 api_key = os.environ.get("GEMINI_API_KEY")
-if not api_key:
-    raise ValueError("GEMINI_API_KEY 環境變數未設定。")
-
 pwd = os.getcwd()
 
 class AllState(TypedDict):

@@ -1,1 +1,0 @@
-這就是為什麼我們在做影像辨識的時候，往往都要做data augmentation。Data augmentation的意思是，你把你的訓練資料，每張圖片都從裡面截一小塊出來放大，讓CNN有看過不同大小的pattern；然後把圖片旋轉，讓它有看過某一個物件旋轉以後長什麼樣子，CNN才會做到好的結果。你說，CNN不能處理scaling跟rotation的問題，那有沒有什麼架構可以處理這個問題呢？其實有的，有一個架構叫spatial transformer layer，我們不會講解它，我們會把這個錄影的連接放在這裡，給大家參考。

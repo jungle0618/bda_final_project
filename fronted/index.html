@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音訊處理前端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            color: #1a73e8;
+        }
+
+        .tab.active {
+            color: #1a73e8;
+            border-bottom-color: #1a73e8;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px dashed #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #1a73e8;
+            background: #f0f4ff;
+        }
+
+        .input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="file"], input[type="text"] {
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        input[type="file"]:hover, input[type="text"]:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        input[type="text"] {
+            font-family: 'Courier New', monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .button-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+        }
+
+        #results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .results-header h3 {
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .file-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .youtube-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #ff0000;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        #status-message {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .status-processing {
+            color: #00529B;
+            background-color: #BDE5F8;
+            border-left: 4px solid #00529B;
+        }
+
+        .status-success {
+            color: #270;
+            background-color: #DFF2BF;
+            border-left: 4px solid #270;
+        }
+
+        .status-error {
+            color: #D8000C;
+            background-color: #FFD2D2;
+            border-left: 4px solid #D8000C;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-left-color: currentColor;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .summary-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .summary-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-header h4 {
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .copy-button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .copy-button:hover {
+            background: #1558b0;
+        }
+
+        .copy-button.copied {
+            background: #28a745;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 20px;
+            border: none;
+            font-family: 'Georgia', serif;
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #333;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .url-preview {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f4f8;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #555;
+            word-break: break-all;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+
+            .file-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎙️ 音訊/影片智能處理系統</h1>
+            <p>支援本地檔案上傳或 YouTube 網址處理</p>
+        </div>
+
+        <div class="content">
+            <!-- 分頁選項 -->
+            <div class="tabs">
+                <button class="tab active" data-tab="upload">📁 本地檔案</button>
+                <button class="tab" data-tab="youtube">📺 YouTube 網址</button>
+            </div>
+
+            <!-- 本地檔案上傳 -->
+            <div id="upload-tab" class="tab-content active">
+                <div class="upload-section">
+                    <div class="input-wrapper">
+                        <label class="input-label" for="audioFileInput">
+                            📁 選擇音訊或影片檔案
+                        </label>
+                        <input type="file" id="audioFileInput" name="audio_file" accept="audio/*,video/*">
+                        <div class="button-group">
+                            <button id="uploadButton" disabled>
+                                🚀 開始處理
+                            </button>
+                            <button id="clearUploadButton" class="button-secondary">
+                                🗑️ 清除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YouTube 網址輸入 -->
+            <div id="youtube-tab" class="tab-content">
+                <div class="upload-section">
+                    <div class="input-wrapper">
+                        <label class="input-label" for="youtubeUrlInput">
+                            📺 輸入 YouTube 影片網址
+                        </label>
+                        <input 
+                            type="text" 
+                            id="youtubeUrlInput" 
+                            placeholder="https://www.youtube.com/watch?v=..."
+                        >
+                        <div class="url-preview" id="urlPreview" style="display: none;"></div>
+                        <div class="button-group">
+                            <button id="youtubeButton" disabled>
+                                🚀 下載並處理
+                            </button>
+                            <button id="clearYoutubeButton" class="button-secondary">
+                                🗑️ 清除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 處理結果區域 -->
+            <div id="results">
+                <div class="results-header">
+                    <h3>📊 處理結果</h3>
+                </div>
+
+                <div class="file-info" id="fileInfo" style="display: none;">
+                    <div class="info-item">
+                        <span class="info-label">來源</span>
+                        <span class="info-value" id="sourceDisplay">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">檔案名稱</span>
+                        <span class="info-value" id="fileNameDisplay">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">處理片段</span>
+                        <span class="info-value" id="sliceCountDisplay">-</span>
+                    </div>
+                    <div class="info-item" id="youtubeUrlInfo" style="display: none;">
+                        <span class="info-label">YouTube 網址</span>
+                        <span class="info-value" id="youtubeUrlDisplay">-</span>
+                    </div>
+                </div>
+
+                <div id="status-message"></div>
+
+                <div class="summary-container">
+                    <div class="summary-header">
+                        <h4>📝 最終摘要</h4>
+                        <button class="copy-button" id="copyButton">
+                            📋 複製
+                        </button>
+                    </div>
+                    <textarea id="summaryResult" readonly placeholder="處理完成後，這裡將顯示完整的摘要內容..."></textarea>
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty-state">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <p>上傳本地檔案或輸入 YouTube 網址開始處理</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API 端點設定
+        const API_BASE = "http://localhost:8000";
+        const API_UPLOAD = `${API_BASE}/process_audio/`;
+        const API_YOUTUBE = `${API_BASE}/process_youtube/`;
+
+        // 獲取 DOM 元素
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // 本地檔案上傳相關
+        const fileInput = document.getElementById('audioFileInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const clearUploadButton = document.getElementById('clearUploadButton');
+        
+        // YouTube 相關
+        const youtubeUrlInput = document.getElementById('youtubeUrlInput');
+        const youtubeButton = document.getElementById('youtubeButton');
+        const clearYoutubeButton = document.getElementById('clearYoutubeButton');
+        const urlPreview = document.getElementById('urlPreview');
+        
+        // 結果顯示相關
+        const resultsDiv = document.getElementById('results');
+        const emptyState = document.getElementById('emptyState');
+        const statusMessage = document.getElementById('status-message');
+        const summaryResult = document.getElementById('summaryResult');
+        const copyButton = document.getElementById('copyButton');
+        const fileInfo = document.getElementById('fileInfo');
+        const sourceDisplay = document.getElementById('sourceDisplay');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const sliceCountDisplay = document.getElementById('sliceCountDisplay');
+        const youtubeUrlInfo = document.getElementById('youtubeUrlInfo');
+        const youtubeUrlDisplay = document.getElementById('youtubeUrlDisplay');
+
+        // 分頁切換
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(tc => tc.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${targetTab}-tab`).classList.add('active');
+            });
+        });
+
+        // 本地檔案處理
+        fileInput.addEventListener('change', () => {
+            uploadButton.disabled = !fileInput.files[0];
+        });
+
+        uploadButton.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("請先選擇一個檔案！");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('audio_file', file);
+
+            await processRequest(API_UPLOAD, {
+                method: 'POST',
+                body: formData,
+            }, file.name, 'local');
+        });
+
+        clearUploadButton.addEventListener('click', () => {
+            fileInput.value = '';
+            uploadButton.disabled = true;
+            clearResults();
+        });
+
+        // YouTube 網址處理
+        youtubeUrlInput.addEventListener('input', () => {
+            const url = youtubeUrlInput.value.trim();
+            const isValid = isValidYouTubeUrl(url);
+            youtubeButton.disabled = !isValid;
+            
+            if (url && isValid) {
+                urlPreview.style.display = 'block';
+                urlPreview.textContent = `✓ 有效的 YouTube 網址: ${url}`;
+            } else if (url) {
+                urlPreview.style.display = 'block';
+                urlPreview.textContent = `✗ 無效的 YouTube 網址`;
+                urlPreview.style.background = '#ffe8e8';
+            } else {
+                urlPreview.style.display = 'none';
+            }
+        });
+
+        youtubeButton.addEventListener('click', async () => {
+            const url = youtubeUrlInput.value.trim();
+            if (!isValidYouTubeUrl(url)) {
+                alert("請輸入有效的 YouTube 網址！");
+                return;
+            }
+
+            await processRequest(API_YOUTUBE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: url }),
+            }, url, 'youtube');
+        });
+
+        clearYoutubeButton.addEventListener('click', () => {
+            youtubeUrlInput.value = '';
+            youtubeButton.disabled = true;
+            urlPreview.style.display = 'none';
+            clearResults();
+        });
+
+        // 通用處理函數
+        async function processRequest(endpoint, fetchOptions, displayName, source) {
+            // 禁用所有按鈕
+            uploadButton.disabled = true;
+            youtubeButton.disabled = true;
+            clearUploadButton.disabled = true;
+            clearYoutubeButton.disabled = true;
+
+            // 顯示處理中狀態
+            resultsDiv.style.display = 'block';
+            emptyState.style.display = 'none';
+            fileInfo.style.display = 'none';
+            
+            const sourceText = source === 'youtube' ? '下載並處理' : '上傳並處理';
+            statusMessage.innerHTML = `<div class="spinner"></div> 正在${sourceText}，請耐心等候...`;
+            statusMessage.className = 'status-processing';
+            summaryResult.value = '';
+
+            try {
+                const response = await fetch(endpoint, fetchOptions);
+                const data = await response.json();
+
+                if (response.ok && data.status === 'success') {
+                    // 處理成功
+                    statusMessage.innerHTML = '✅ ' + (data.message || '處理完成！');
+                    statusMessage.className = 'status-success';
+                    summaryResult.value = data.final_summary || '（未生成摘要內容）';
+                    
+                    // 顯示檔案資訊
+                    fileInfo.style.display = 'grid';
+                    sourceDisplay.innerHTML = source === 'youtube' 
+                        ? '<span class="youtube-badge">▶ YouTube</span>' 
+                        : '📁 本地檔案';
+                    fileNameDisplay.textContent = data.file_name || displayName;
+                    sliceCountDisplay.textContent = data.slice_count || '0';
+                    
+                    // 如果是 YouTube，顯示網址
+                    if (source === 'youtube' && data.youtube_url) {
+                        youtubeUrlInfo.style.display = 'flex';
+                        youtubeUrlDisplay.textContent = data.youtube_url;
+                    } else {
+                        youtubeUrlInfo.style.display = 'none';
+                    }
+                    
+                    console.log("處理成功:", data);
+                } else {
+                    throw new Error(data.message || '未知的伺服器錯誤');
+                }
+
+            } catch (error) {
+                console.error('處理失敗:', error);
+                statusMessage.innerHTML = '❌ 錯誤： ' + error.message;
+                statusMessage.className = 'status-error';
+                summaryResult.value = '';
+            } finally {
+                // 恢復按鈕狀態
+                uploadButton.disabled = !fileInput.files[0];
+                youtubeButton.disabled = !isValidYouTubeUrl(youtubeUrlInput.value.trim());
+                clearUploadButton.disabled = false;
+                clearYoutubeButton.disabled = false;
+            }
+        }
+
+        // 複製功能
+        copyButton.addEventListener('click', async () => {
+            const text = summaryResult.value;
+            if (!text) {
+                alert('沒有可複製的內容');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(text);
+                copyButton.textContent = '✓ 已複製';
+                copyButton.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyButton.textContent = '📋 複製';
+                    copyButton.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                alert('複製失敗，請手動選擇文字複製');
+            }
+        });
+
+        // 清除結果
+        function clearResults() {
+            resultsDiv.style.display = 'none';
+            emptyState.style.display = 'block';
+            summaryResult.value = '';
+            fileInfo.style.display = 'none';
+        }
+
+        // 驗證 YouTube 網址
+        function isValidYouTubeUrl(url) {
+            const patterns = [
+                /^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=)[\w-]+/,
+                /^(https?:\/\/)?(www\.)?(youtu\.be\/)[\w-]+/,
+                /^(https?:\/\/)?(www\.)?(youtube\.com\/embed\/)[\w-]+/,
+            ];
+            return patterns.some(pattern => pattern.test(url));
+        }
+    </script>
+</body>
+</html>

@@ -483,10 +483,6 @@
     </div>
 
     <script>
-        // API 端點設定
-        const API_BASE = "http://localhost:8000";
-        const API_UPLOAD = `${API_BASE}/process_audio/`;
-        const API_YOUTUBE = `${API_BASE}/process_youtube/`;
 
         // 獲取 DOM 元素
         const tabs = document.querySelectorAll('.tab');
@@ -544,10 +540,10 @@
             const formData = new FormData();
             formData.append('audio_file', file);
 
-            await processRequest(API_UPLOAD, {
-                method: 'POST',
-                body: formData,
-            }, file.name, 'local');
+            await processRequest(API_CONFIG.ENDPOINTS.PROCESS_AUDIO, {
+            method: 'POST',
+            body: formData,
+        }, file.name, 'local');
         });
 
         clearUploadButton.addEventListener('click', () => {
@@ -581,13 +577,13 @@
                 return;
             }
 
-            await processRequest(API_YOUTUBE, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ url: url }),
-            }, url, 'youtube');
+            await processRequest(API_CONFIG.ENDPOINTS.PROCESS_YOUTUBE, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url: url }),
+        }, url, 'youtube');
         });
 
         clearYoutubeButton.addEventListener('click', () => {

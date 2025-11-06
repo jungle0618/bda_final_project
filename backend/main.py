@@ -30,9 +30,21 @@ except ImportError:
 fastapi_app = FastAPI(title="Audio Processing API")
 
 # 添加 CORS 中間件
+frontend_url = "https://bda-final-project-1.onrender.com"
+
+# 允許的來源列表 (我們也加入本地開發常用的網址)
+origins = [
+    frontend_url,
+    "http://localhost",
+    "http://localhost:8080",
+    "http://localhost:5173",  # 如果您本地使用 Vite
+    "http://127.0.0.1:5500" # 如果您本地使用 VSCode Live Server
+]
+
+# 正確的設定
 fastapi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,     # ⚠️ 這裡就是修改的地方
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

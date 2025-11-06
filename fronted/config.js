@@ -14,7 +14,7 @@
 const BACKEND_URL_DEV = "http://localhost:8000";
 
 // 生產環境（請修改為實際的後端網域）
-const BACKEND_URL_PROD = "https://your-backend-domain.com";
+const BACKEND_URL_PROD = "https://bda-final-project.onrender.com";
 
 // =====================================
 // 自動環境檢測

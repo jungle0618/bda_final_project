@@ -6,7 +6,8 @@ from typing import Annotated, List, Dict, Any, Optional
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
-from google import genai
+import google.generativeai as genai 
+
 from google.api_core import exceptions as google_exceptions
 from pydub import AudioSegment
 from multiprocessing import Pool, cpu_count
@@ -17,7 +18,6 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
 import shutil
-
 # 導入 pytube
 try:
     from pytubefix import YouTube
